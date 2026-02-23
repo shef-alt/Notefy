@@ -16,7 +16,7 @@ export default function Profile() {
   const context = useContext(Context);
   const { value } = context || {value: undefined};
 
-  const getProfile = () => {
+  useEffect(() => {
     fetch("http://192.168.100.20:3000/profile")
       .then((res) => res.json())
       .then((result) => {
@@ -24,9 +24,6 @@ export default function Profile() {
         setMajor(result[0].major);
       })
       .catch((err) => console.error(err));
-  }
-  useEffect(() => {
-    getProfile();
   }, []);
 
   return (
@@ -34,7 +31,7 @@ export default function Profile() {
       <View style={styles.box}>
         <Image source={value} style={styles.image} />
         <View>
-          <Text style={{ fontSize: 25, width: 200 }} onPress={() => getProfile()}>{name}</Text>
+          <Text style={{ fontSize: 25, width: 200 }}>{name}</Text>
           <Text>{major}</Text>
         </View>
       </View>
