@@ -1,4 +1,4 @@
-import { Stack, useLocalSearchParams } from "expo-router";
+import { Stack, useLocalSearchParams, router } from "expo-router";
 import {
   Text,
   View,
@@ -6,6 +6,7 @@ import {
   TextInput,
   ScrollView,
   Pressable,
+  Modal
 } from "react-native";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import React, { useEffect, useState } from "react";
@@ -19,6 +20,9 @@ export default function Notes() {
   const [subject, setSubject] = useState<string>("");
   const [title, setTitle] = useState<string>("");
   const [icon, setIcon] = useState<boolean>(false);
+  const [modalStatus, setModalStatus] = useState<boolean>(false);
+  const [selesai, setSelesai] = useState<boolean>(false);
+  const [progress, setProgress] = useState<boolean>(false);
 
   useEffect(() => {
     fetch("http://192.168.100.20:3000/notes")
@@ -88,18 +92,33 @@ export default function Notes() {
             <TextInput  />
           </View> */}
         <View style={styles.line} />
-        <View style={{flexDirection: "row", marginTop: 30, gap: 4 }}>
-          <Text
-            style={styles.button}
-            onPress={() => {
-              addNote();
-              setIcon(true);
-            }}
-          >
-            Save
-          </Text>
-          {icon && <AntDesign name="check" size={18} color="#10B981" />}
+        <View style={{flexDirection: "row", marginTop: 30, justifyContent: "space-between" }}>
+          <View style={{flexDirection: "row", gap: 4 }}>
+            <Text
+              style={styles.button}
+              onPress={() => 
+                {
+                addNote();
+                setIcon(true);
+                router.push("/(tabs)/notes");
+              }}
+            >
+              Save
+            </Text>
+            {icon && <AntDesign name="check" size={18} color="#10B981" />}
+          </View>
+          <Pressable onPress={() => {setModalStatus(true)}} style={[styles.status, progress? { backgroundColor: "#EE0000" } : selesai? { backgroundColor: "#00DD00" } : { backgroundColor: "#DDDDDD" }]}>
+            {progress ? <Text style={{color:"white"}}>Progress</Text> : selesai? <Text style={{color:"white"}}>Selesai</Text> : <Text> Set Status</Text>}
+          </Pressable>
         </View>
+        { modalStatus && 
+          <Pressable onPress={() => {setModalStatus(false)}} style={styles.modalContainer}>
+              <View style={styles.modal}>
+                <Text style={{fontWeight: "bold", fontSize: 16, textDecorationLine: "underline"}}>Set Status</Text>
+                <Text onPress={() => {setSelesai(true); setProgress(false)}} style={[styles.statusOpt, {backgroundColor: "#00EE00"}]}>Selesai</Text>
+                <Text onPress={() => {setProgress(true); setSelesai(false)}} style={[styles.statusOpt, {backgroundColor: "#EE0000"}]}>Progress</Text>
+              </View>
+          </Pressable>}
       </ScrollView>
     </>
   );
@@ -130,5 +149,37 @@ const styles = StyleSheet.create({
     backgroundColor: "#22C55E",
     textAlign: "center", 
     color: "white"
+  },
+  status: {
+    textAlign: "center",
+    margin: 2,
+    padding: 6,
+    paddingInline: 9,
+    borderRadius: 8,
+  }, 
+  modalContainer: {
+    width: "100%",
+    height: "100%",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  modal: {
+    width: 300,
+    height: 200,
+    position: "absolute",
+    backgroundColor: "white",
+    borderRadius: 20,
+    padding: 20,
+    gap: 20,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  statusOpt: {
+    width: 100, 
+    height: 40, 
+    borderRadius: 10,
+    textAlign: "center",
+    padding: 8,
+    color: "white",
   }
 });
